@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estados y Municipios AJAX</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 25px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    option {
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Selecciona Estado y Municipio</h1>
+
+    <label for="estado">Estado:</label>
+    <select id="estado">
+      <option value="">-- Selecciona un estado --</option>
+      {% for est in estados %}
+        <option value="{{ est.id }}">{{ est.nombre }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="municipio">Municipio:</label>
+    <select id="municipio">
+      <option value="">-- Selecciona un municipio --</option>
+    </select>
+  </div>
+
+  <script>
+    const estadoSelect = document.getElementById('estado');
+    const municipioSelect = document.getElementById('municipio');
+
+    estadoSelect.addEventListener('change', async () => {
+      const estadoId = estadoSelect.value;
+      municipioSelect.innerHTML = '<option>Cargando...</option>';
+
+      if (!estadoId) {
+        municipioSelect.innerHTML = '<option>-- Selecciona un municipio --</option>';
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/get-municipios/?estado_id=${estadoId}`);
+        const data = await resp.json();
+
+        municipioSelect.innerHTML = '<option>-- Selecciona un municipio --</option>';
+        data.municipios.forEach(m => {
+          const option = document.createElement('option');
+          option.value = m.id;
+          option.textContent = m.nombre;
+          municipioSelect.appendChild(option);
+        });
+      } catch (error) {
+        municipioSelect.innerHTML = '<option>Error al cargar municipios</option>';
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
