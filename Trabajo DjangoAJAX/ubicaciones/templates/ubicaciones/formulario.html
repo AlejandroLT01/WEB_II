@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estados y Municipios AJAX</title>
+</head>
+<body>
+  <h1>Selecciona Estado y Municipio</h1>
+
+  <label>Estado:</label>
+  <select id="estado">
+    <option value="">-- Selecciona un estado --</option>
+    {% for est in estados %}
+      <option value="{{ est.id }}">{{ est.nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <br><br>
+
+  <label>Municipio:</label>
+  <select id="municipio">
+    <option value="">-- Selecciona un municipio --</option>
+  </select>
+
+  <script>
+    const estadoSelect = document.getElementById('estado');
+    const municipioSelect = document.getElementById('municipio');
+
+    estadoSelect.addEventListener('change', async () => {
+      const estadoId = estadoSelect.value;
+      municipioSelect.innerHTML = '<option>Cargando...</option>';
+
+      if (!estadoId) {
+        municipioSelect.innerHTML = '<option>-- Selecciona un municipio --</option>';
+        return;
+      }
+
+      const resp = await fetch(`/get-municipios/?estado_id=${estadoId}`);
+      const data = await resp.json();
+
+      municipioSelect.innerHTML = '<option>-- Selecciona un municipio --</option>';
+      data.municipios.forEach(m => {
+        const option = document.createElement('option');
+        option.value = m.id;
+        option.textContent = m.nombre;
+        municipioSelect.appendChild(option);
+      });
+    });
+  </script>
+</body>
+</html>
